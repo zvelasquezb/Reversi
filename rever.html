@@ -335,12 +335,14 @@ class PlayerPrun extends Agent {
                 super()
                 this.board = new Board()
             }
-
+            
             compute(board, time) {
                return null
             }
 
             abPrunning(board,bool,){
+                //aqui se obtienen todos los movimientos posibles
+            var moves = this.board.valid_moves(board, this.color)
                 return null
             }
         }
