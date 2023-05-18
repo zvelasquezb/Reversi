@@ -318,6 +318,97 @@
                 return moves[index]
             }
         }
+        class player extends Agent {
+            constructor() {
+                super()
+                this.board = new Board()
+            }
+            compute(board, time) {
+                this.board.set_board(board);
+
+                var bestMove = null;
+                var maxScore = -Infinity;
+                var depth = 5; // Depth limit for the minimax algorithm
+
+                var moves = this.board.valid_moves(board, this.color);
+                for (var i = 0; i < moves.length; i++) {
+                    var move = moves[i];
+                    var newBoard = this.board.clone();
+                    newBoard.move(move[0], move[1], this.color);
+
+                    var score = this.minimax(newBoard, false, depth, -Infinity, Infinity);
+                    if (score > maxScore) {
+                        maxScore = score;
+                        bestMove = move;
+                    }
+                }
+
+                return bestMove;
+            }
+
+            minimax(board, maximizingPlayer, depth, alpha, beta) {
+                if (depth === 0 || board.is_game_over()) {
+                    return this.evaluate(board);
+                }
+
+                if (maximizingPlayer) {
+                    var maxScore = -Infinity;
+                    var moves = this.board.valid_moves(board, this.color);
+
+                    for (var i = 0; i < moves.length; i++) {
+                        var move = moves[i];
+                        var newBoard = this.board.clone();
+                        newBoard.move(move[0], move[1], this.color);
+
+                        var score = this.minimax(newBoard, false, depth - 1, alpha, beta);
+                        maxScore = Math.max(maxScore, score);
+                        alpha = Math.max(alpha, score);
+
+                        if (beta <= alpha) {
+                            break; // Beta cutoff
+                        }
+                    }
+
+                    return maxScore;
+                } else {
+                    var minScore = Infinity;
+                    var opponentColor = this.get_opponent_color();
+
+                    var moves = this.board.valid_moves(board, opponentColor);
+                    for (var i = 0; i < moves.length; i++) {
+                        var move = moves[i];
+                        var newBoard = this.board.clone();
+                        newBoard.move(move[0], move[1], opponentColor);
+
+                        var score = this.minimax(newBoard, true, depth - 1, alpha, beta);
+                        minScore = Math.min(minScore, score);
+                        beta = Math.min(beta, score);
+
+                        if (beta <= alpha) {
+                            break; // Alpha cutoff
+                        }
+                    }
+
+                    return minScore;
+                }
+            }
+
+            evaluate(board) {
+                // Implement your own evaluation function here
+                // Assign weights to different positions on the board
+                // Return a score representing the player's advantage
+            }
+
+         
+
+            get_opponent_color() {
+                // Determine the opponent's color based on the player's color
+                // Return 'B' or 'W'
+            }
+        }
+
+          
+        
 /*
 *****************************************************************************************
 404 ERROR NOT FOUND
@@ -329,7 +420,7 @@
       (  /  )
        \(__)|
 */
-class PlayerPrun extends Agent {
+        class PlayerPrun extends Agent {
     //ya se conoce el color de la pieza del agente 
             constructor() {
                 super()
@@ -355,7 +446,7 @@ class PlayerPrun extends Agent {
                 super()
                 this.board = new Board()
                 this.players = { // Here we are going to set all the players name : instance of class
-                    'rand1': new RandomPlayer(),
+                    'rand1': new player(),
                     'rand2': new RandomPlayer()
                 }
             }
