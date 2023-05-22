@@ -318,13 +318,13 @@
                 return moves[index]
             }
         }
-        class player extends Agent {
+        class Player extends Agent {
             constructor() {
                 super()
                 this.board = new Board()
             }
+
             compute(board, time) {
-                this.board.set_board(board);
 
                 var bestMove = null;
                 var maxScore = -Infinity;
@@ -333,8 +333,9 @@
                 var moves = this.board.valid_moves(board, this.color);
                 for (var i = 0; i < moves.length; i++) {
                     var move = moves[i];
-                    var newBoard = this.board.clone();
-                    newBoard.move(move[0], move[1], this.color);
+                    var newBoard = new Board()
+                    console.log(this.color)
+                    newBoard.move(board, move[0], move[1], this.color);
 
                     var score = this.minimax(newBoard, false, depth, -Infinity, Infinity);
                     if (score > maxScore) {
@@ -347,7 +348,8 @@
             }
 
             minimax(board, maximizingPlayer, depth, alpha, beta) {
-                if (depth === 0 || board.is_game_over()) {
+
+                if (depth === 0) {
                     return this.evaluate(board);
                 }
 
@@ -358,7 +360,7 @@
                     for (var i = 0; i < moves.length; i++) {
                         var move = moves[i];
                         var newBoard = this.board.clone();
-                        newBoard.move(move[0], move[1], this.color);
+                        newBoard.move(board, move[0], move[1], this.color);
 
                         var score = this.minimax(newBoard, false, depth - 1, alpha, beta);
                         maxScore = Math.max(maxScore, score);
@@ -378,7 +380,7 @@
                     for (var i = 0; i < moves.length; i++) {
                         var move = moves[i];
                         var newBoard = this.board.clone();
-                        newBoard.move(move[0], move[1], opponentColor);
+                        newBoard.move(board, move[0], move[1], opponentColor);
 
                         var score = this.minimax(newBoard, true, depth - 1, alpha, beta);
                         minScore = Math.min(minScore, score);
@@ -446,7 +448,7 @@
                 super()
                 this.board = new Board()
                 this.players = { // Here we are going to set all the players name : instance of class
-                    'rand1': new player(),
+                    'rand1': new Player(),
                     'rand2': new RandomPlayer()
                 }
             }
