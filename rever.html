@@ -331,13 +331,16 @@
                 var depth = 5; // Depth limit for the minimax algorithm
 
                 var moves = this.board.valid_moves(board, this.color);
+
                 for (var i = 0; i < moves.length; i++) {
                     var move = moves[i];
-                    var newBoard = new Board()
-                    console.log(this.color)
-                    newBoard.move(board, move[0], move[1], this.color);
+                    //Makes a clone of the original board
+                    var newBoard = this.board.clone(board)
+                    //Simulates the move
+                    this.board.move(newBoard, move[0], move[1], this.color);
 
-                    var score = this.minimax(newBoard, false, depth, -Infinity, Infinity);
+                    var score = this.minimax(board, false, depth, -Infinity, Infinity);
+                    
                     if (score > maxScore) {
                         maxScore = score;
                         bestMove = move;
@@ -348,20 +351,20 @@
             }
 
             minimax(board, maximizingPlayer, depth, alpha, beta) {
-
+                
                 if (depth === 0) {
                     return this.evaluate(board);
                 }
-
+                
                 if (maximizingPlayer) {
+                    //console.log("Max")
                     var maxScore = -Infinity;
                     var moves = this.board.valid_moves(board, this.color);
 
                     for (var i = 0; i < moves.length; i++) {
                         var move = moves[i];
-                        var newBoard = this.board.clone();
-                        newBoard.move(board, move[0], move[1], this.color);
-
+                        var newBoard = this.board.clone(board)
+                        this.board.move(newBoard, move[0], move[1], this.color);
                         var score = this.minimax(newBoard, false, depth - 1, alpha, beta);
                         maxScore = Math.max(maxScore, score);
                         alpha = Math.max(alpha, score);
@@ -373,15 +376,16 @@
 
                     return maxScore;
                 } else {
+                    //console.log("Min")
                     var minScore = Infinity;
                     var opponentColor = this.get_opponent_color();
-
+                    
                     var moves = this.board.valid_moves(board, opponentColor);
+                    
                     for (var i = 0; i < moves.length; i++) {
                         var move = moves[i];
-                        var newBoard = this.board.clone();
-                        newBoard.move(board, move[0], move[1], opponentColor);
-
+                        var newBoard = this.board.clone(board)
+                        this.board.move(newBoard, move[0], move[1], opponentColor);
                         var score = this.minimax(newBoard, true, depth - 1, alpha, beta);
                         minScore = Math.min(minScore, score);
                         beta = Math.min(beta, score);
@@ -399,6 +403,9 @@
                 // Implement your own evaluation function here
                 // Assign weights to different positions on the board
                 // Return a score representing the player's advantage
+
+                //Made a random number to get the code to work xd
+                return Math.floor(Math.random())
             }
 
          
@@ -406,6 +413,7 @@
             get_opponent_color() {
                 // Determine the opponent's color based on the player's color
                 // Return 'B' or 'W'
+                return this.color == 'W' ? 'B' : 'W'
             }
         }
 
@@ -512,6 +520,7 @@
                     start = Date.now()
                     var action = x.players[id].compute(b, x.time[x.player])
                     var end = Date.now()
+                
                     var flag = board.move(x.b, action[0], action[1], x.player)
                     if (!flag) {
                         x.winner = nid + ' ...Invalid move taken by ' + id + ' on row ' + action[0] + ', column ' + action[1]
