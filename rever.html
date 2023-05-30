@@ -419,7 +419,7 @@
                 const counter = this.count(board, size);
                 var result = 0;
                 var evaluationMatrix = this.matrix(size);
-                if (counter <= 5) {
+                if (counter <= Math.floor(size/3)) {
                     
                     for (let i = 0; i < size; i++) {
                         for (let j = 0; j < size; j++) {
