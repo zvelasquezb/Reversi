@@ -326,11 +326,11 @@
 
             compute(board, time) {
 
-                var bestMove = null;
                 var maxScore = -Infinity;
-                var depth = 5; // Depth limit for the minimax algorithm
-
+                
+                var depth =  this.calDepth(board, time); // Depth limit for the minimax algorithm
                 var moves = this.board.valid_moves(board, this.color);
+                var bestMove = moves[0];
 
                 for (var i = 0; i < moves.length; i++) {
                     var move = moves[i];
@@ -346,14 +346,14 @@
                         bestMove = move;
                     }
                 }
-
+                
                 return bestMove;
             }
 
             minimax(board, maximizingPlayer, depth, alpha, beta) {
                 
                 if (depth === 0) {
-                    return this.evaluate(board);
+                    return this.evaluate(board)
                 }
                 
                 if (maximizingPlayer) {
@@ -399,19 +399,192 @@
                 }
             }
 
-            evaluate(board) {
-                // Implement your own evaluation function here
-                // Assign weights to different positions on the board
-                // Return a score representing the player's advantage
-
-                //Made a random number to get the code to work xd
-                return Math.floor(Math.random())
+            //Calculates the proper depth in relation to the time left and occupied cells
+            calDepth(board,time){
+                let size = board[0].length;
+                
+                let free = this.countBoard(board);
+                let ranMin = 4;
+                let ranMax = ranMin*5;
+                let depth = Math.floor(time/((size*size)-free)/time * (ranMax-ranMin +1) + ranMin);
+                console.log(depth);
+                return depth;
             }
 
-         
+            winner(board) {
+                var size = board.length
+                var W = 0
+                var B = 0
+                for (var i = 0; i < size; i++)
+                    for (var j = 0; j < size; j++)
+                        if (board[i][j] == 'W') W++
+                        else if (board[i][j] == 'B') B++
+                if (W == B) return null
+        
+                return ((W > B) ? 'W':'B')
+            }
 
+            corner(board, cor){
+                var size = board.length
+                var W = 0
+                var B = 0
+                
+                switch (cor) {
+                    //Esquina superior izquierda
+                    case 1:
+                        /*for (var i = 0; i < (size/2); i++)
+                            for (var j = 0; j < (size/2); j++)
+                                if (board[i][j] == 'W') W++
+                                else if (board[i][j] == 'B') B++
+                        if (W == B) return null
+                        return ((W > B) ? 'W':'B')*/
+                        return board[0][0]
+                    case 2:
+                         //Esquina superior derecha               
+                        /*for (var i = (size/2)+2; i < size; i++)
+                            for (var j = 0; j < ((size/2)-1); j++)
+                                if (board[i][j] == 'W') W++
+                                else if (board[i][j] == 'B') B++
+                        if (W == B) return null
+                        return ((W > B) ? 'W':'B')*/
+                        return board[size-1][0]
+                    case 3:
+                        //Esquina inferior izquierda
+                        /*for (var i = 0; i < (size/2); i++)
+                            for (var j = (size/2)+2; j < size; j++)
+                                if (board[i][j] == 'W') W++
+                                else if (board[i][j] == 'B') B++
+                        if (W == B) return null
+                        return ((W > B) ? 'W':'B')*/
+                        return board[0][size-1]
+                    case 4:
+                        //Esquina inferior derecha
+                        /*for (var i = ((size/2)+2); i < size; i++)
+                            for (var j = ((size/2)+2); j < size; j++)
+                                if (board[i][j] == 'W') W++
+                                else if (board[i][j] == 'B') B++
+                        if (W == B) return null
+                        return ((W > B) ? 'W':'B')*/
+                        return board[size-1][size-1]
+                    default:
+                        break;
+                }
+            }
+
+            evaluate(board) {
+                // Return a score representing the player's advantage
+
+                const size = board[0].length;
+                var result = 0;
+                let win = this.winner(board);
+                let cor1 = this.corner(board, 1);
+                let cor2 = this.corner(board, 2);
+                let cor3 = this.corner(board, 3);
+                let cor4 = this.corner(board, 4);
+
+                if (this.color == win) {
+                    result++;
+                }
+                /*if (this.color == cor1) {
+                    result++;
+                }
+                if (this.color == cor2) {
+                    result++;
+                }  
+                if (this.color == cor3) {
+                    result++;
+                }  
+                if (this.color == cor4) {
+                    result++;
+                } */
+
+        
+                return result;
+            }
+            
+            //Creates the matriz of weights taking into account the borders as a priority
+            matrix(size){
+                var evaluationMatrix = [];
+                let max = 100;
+                const diff = (max/size)*2;
+                for (var i = 0; i < size/2; i++) {
+                    var row = [];
+                    for (var j = 0; j < size/2-1; j++) {
+                    // Aplicar la fórmula para asignar los valores de la matriz de evaluación
+                        var value = this.calcularValor(i, j, size, max, diff);
+                        max = max-diff
+                        row.push(value);
+                    }
+                    for (var j = size/2-1; j < size; j++) {
+                    // Aplicar la fórmula para asignar los valores de la matriz de evaluación
+                        var value = this.calcularValor(i, j, size, max, diff);
+                        row.push(value);
+                        max = max+diff
+                    }
+                    evaluationMatrix.push(row);
+                }
+
+                for (var i = size/2-1; i < size; i++) {
+                    var row = [];
+                    for (var j = 0; j < size/2; j++) {
+                    // Aplicar la fórmula para asignar los valores de la matriz de evaluación
+                        var value = this.calcularValor(i, j, size, max, diff);
+                        max = max-diff
+                        row.push(value);
+                    }
+                    for (var j = size/2-1; j < size; j++) {
+                    // Aplicar la fórmula para asignar los valores de la matriz de evaluación
+                        var value = this.calcularValor(i, j, size, max, diff);
+                        row.push(value);
+                        max = max+diff
+                    }
+                    evaluationMatrix.push(row);
+                }
+                return evaluationMatrix;
+            }
+
+            calcularValor(row, col, m) {
+                // Aplicar la fórmula para asignar los valores de la matriz de evaluación
+                let max = 100;
+                const diff = Math.floor((max/m)*2);
+                let value = max-row*diff-col*diff
+                
+                return value;
+            }
+            //Counts the number of free spaces in the borders
+            count(board, size) {
+                let counti = 0;
+                for (let i = 0; i < size; i++) {
+                    if (board[0][i] !== ' ') {
+                        counti++;
+                    }
+                    if (board[size-1][i] !== ' ') {
+                        counti++;
+                    }
+                    if (board[i][0] !== ' ') {
+                        counti++;
+                    }
+                    if (board[i][size-1] !== ' ') {
+                        counti++;
+                    }
+                }
+                return counti;
+            }
+
+            //Counts the number of free spaces in all the board
+            countBoard(board) {
+            // Utilizar el método reduce() para iterar sobre los elementos de la matriz
+            const count = board.reduce((acc, row) => {
+                // Utilizar el método filter() para filtrar los elementos que coinciden con el elemento buscado
+                const occurrences = row.filter(item => item === ' ').length;
+                return acc + occurrences; // Sumar las ocurrencias al acumulador
+            }, 0);
+
+            return count;
+            }
+
+            // Determine the opponent's color based on the player's color
             get_opponent_color() {
-                // Determine the opponent's color based on the player's color
                 // Return 'B' or 'W'
                 return this.color == 'W' ? 'B' : 'W'
             }
