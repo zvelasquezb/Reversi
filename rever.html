@@ -405,7 +405,7 @@
                 let free = this.countBoard(board);
                 //let ranMin = (20*size+1)-(size*size);
                 //let ranMax = size*2;
-                let dict = [0,0,0,25,25,25,10,8,7,7,5,5,5,5,5,4,4,4,3,3,2];
+                let dict = [25,25,25,25,25,25,10,8,7,7,5,5,5,5,5,4,4,4,3,3,2];
                 let ranMin = dict[size];
                 let ranMax = 30;
                 let depth = Math.floor(time/((size*size)-free)/time * (ranMax-ranMin +1) + ranMin);
